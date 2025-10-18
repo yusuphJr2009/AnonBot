@@ -1,0 +1,57 @@
+{
+  "name": "anonbot-expedition0",
+  "version": "2.0.0",
+  "description": "AnonBot Expedition0 — Modular WhatsApp Bot powered by Baileys, Python, and MongoDB.",
+  "author": "Anonymous",
+  "license": "MIT",
+  "main": "core/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node core/index.js",
+    "dev": "nodemon core/index.js",
+    "python:bridge": "python python-services/bridge.py",
+    "lint": "eslint .",
+    "test": "node tests/test.js",
+    "setup": "npm install && echo '✅ AnonBot setup complete.'"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "^7.0.0",
+    "axios": "^1.7.0",
+    "chalk": "^5.3.0",
+    "dotenv": "^16.4.1",
+    "express": "^4.19.0",
+    "mongoose": "^8.2.0",
+    "moment": "^2.30.1",
+    "node-fetch": "^3.3.2",
+    "pino": "^9.1.0",
+    "ws": "^8.16.0",
+    "uuid": "^9.0.1",
+    "sharp": "^0.33.3",
+    "form-data": "^4.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0",
+    "eslint": "^9.4.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gamemaker-anon/AnonBot-Expedition0.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gamemaker-anon/AnonBot-Expedition0/issues"
+  },
+  "keywords": [
+    "whatsapp",
+    "bot",
+    "baileys",
+    "mongodb",
+    "python",
+    "ai",
+    "expedition0",
+    "anonbot"
+  ]
+}
