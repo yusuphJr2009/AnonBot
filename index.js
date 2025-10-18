@@ -1,10 +1,12 @@
 const { Client } = require('whatsapp-web.js');
+const qrcode = require('qrcode-terminal');
 
 // Create a new client instance
 const client = new Client();
 
 // When the client is ready, run this code (only once)
 client.once('ready', () => {
+    qrcode.generate(qr, {small: true});
     console.log('Client is ready!');
 });
 
