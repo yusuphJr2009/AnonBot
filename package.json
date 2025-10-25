@@ -1,45 +1,26 @@
 {
-  "name": "AnonBOT_Scanner",
+  "name": "whatsapp-qr-website",
   "version": "1.0.0",
-  "description": "Website to display WhatsApp QR code from a bot with real-time updates",
+  "description": "Website to display WhatsApp QR code from a bot - Render optimized",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "production": "NODE_ENV=production node index.js",
-    "install-deps": "npm install"
+    "install-deps": "npm install && npx puppeteer browsers install chrome"
   },
-  "keywords": [
-    "whatsapp",
-    "qr-code",
-    "bot",
-    "website",
-    "socket.io",
-    "real-time",
-    "messaging"
-  ],
-  "author": "Anonymous",
+  "keywords": ["whatsapp", "qr-code", "bot", "render"],
+  "author": "Your Name",
   "license": "MIT",
   "dependencies": {
     "express": "^4.18.2",
     "socket.io": "^4.7.2",
     "whatsapp-web.js": "^1.23.0",
-    "qrcode-terminal": "^0.12.0",
-    "path": "^0.12.7"
+    "qrcode-terminal": "^0.12.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/yourusername/whatsapp-qr-website.git"
-  },
-  "bugs": {
-    "url": "https://github.com/yourusername/whatsapp-qr-website/issues"
-  },
-  "homepage": "https://github.com/yourusername/whatsapp-qr-website#readme",
   "engines": {
-    "node": ">=14.0.0",
-    "npm": ">=6.0.0"
+    "node": ">=16.0.0"
   }
 }
