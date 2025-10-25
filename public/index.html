@@ -1,54 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>WhatsApp QR Code Scanner</title>
-    <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>WhatsApp QR Code Scanner</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <div class="container">
-        <div class="logo">
-            <div class="logo-icon">📱</div>
-            <h1>WhatsApp Bot</h1>
-        </div>
-        <p class="subtitle">Scan the QR code to connect your WhatsApp account</p>
-        
-        <div class="status connecting">
-            <div class="loader"></div>
-            <span id="status-text">Waiting for QR code...</span>
-        </div>
-        
-        <div class="qr-container">
-            <div id="qrcode"></div>
-        </div>
-        
-        <div class="instructions">
-            <h3>How to connect:</h3>
-            <ol>
-                <li>Open WhatsApp on your phone</li>
-                <li>Tap Menu or Settings and select WhatsApp Web</li>
-                <li>Point your phone at this screen to capture the code</li>
-                <li>Wait for the connection confirmation</li>
-            </ol>
-        </div>
-        
-        <button id="refresh-btn" class="btn">
-            <i>🔄</i> Refresh QR Code
-        </button>
-        
-        <div class="footer">
-            <p>Your messages are secure and private</p>
-        </div>
+  <div class="container">
+    <div class="logo">
+      <div class="logo-icon">📱</div>
+      <h1>WhatsApp Bot Linker</h1>
     </div>
 
-    <!-- External libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <p class="subtitle">Scan the QR code to connect your WhatsApp account</p>
 
-    <!-- Main script -->
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    <script src="script.js"></script>
+    <div class="status connecting">
+      <div class="loader"></div>
+      <span id="status-text">Connecting to server...</span>
+    </div>
+
+    <div class="qr-container">
+      <div id="qrcode"></div>
+    </div>
+
+    <div class="instructions">
+      <h3>How to connect:</h3>
+      <ol>
+        <li>Open WhatsApp on your phone</li>
+        <li>Tap <b>Menu ▸ Linked Devices</b></li>
+        <li>Point your phone at this screen to scan the QR code</li>
+        <li>Wait until the connection completes</li>
+      </ol>
+    </div>
+
+    <button id="refresh-btn" class="btn">
+      🔄 Refresh QR Code
+    </button>
+
+    <div class="footer">
+      <p>Connection secure — powered by <b>BWM-XMD</b></p>
+    </div>
+  </div>
+
+  <!-- Socket.IO -->
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <!-- QRCodeJS -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <!-- Main Script -->
+  <script src="script.js"></script>
 </body>
 </html>
