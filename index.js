@@ -1,4 +1,4 @@
-// index.js (updated)
+// index.js - Render optimized
 const { Client, LocalAuth } = require('whatsapp-web.js');
 const express = require('express');
 const http = require('http');
@@ -9,94 +9,172 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// Serve static files (your HTML, CSS, JS)
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Create a new client instance with LocalAuth for persistence
+// Render-specific Puppeteer configuration
+const puppeteerOptions = {
+  headless: true,
+  args: [
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--disable-accelerated-2d-canvas',
+    '--no-first-run',
+    '--no-zygote',
+    '--disable-gpu',
+    '--single-process' // This may be needed for Render's environment
+  ],
+  executablePath: process.env.CHROMIUM_PATH || undefined // Render provides this
+};
+
+// Create WhatsApp client with Render-optimized settings
 const client = new Client({
-    authStrategy: new LocalAuth(),
-    puppeteer: {
-        headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-    }
+  authStrategy: new LocalAuth({
+    clientId: "whatsapp-bot" // Use a fixed clientId for better session handling
+  }),
+  puppeteer: puppeteerOptions,
+  webVersionCache: {
+    type: 'remote',
+    remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html'
+  }
 });
 
-// When the client is ready, run this code (only once)
+// Store QR code in memory (since file system is ephemeral)
+let currentQR = null;
+let isAuthenticated = false;
+
+// When client is ready
 client.once('ready', () => {
-    console.log('Client is ready!');
-    io.emit('ready');
+  console.log('✅ WhatsApp Client is ready!');
+  isAuthenticated = true;
+  io.emit('ready');
 });
 
-// When the client received QR-Code
+// When QR code is received
 client.on('qr', (qr) => {
-    console.log('QR RECEIVED');
-    // Emit QR code to all connected clients
-    io.emit('qr', qr);
+  console.log('📱 QR Code received');
+  currentQR = qr;
+  isAuthenticated = false;
+  io.emit('qr', qr);
 });
 
-// When client is authenticated
+// When authenticated
 client.on('authenticated', () => {
-    console.log('Client authenticated');
-    io.emit('authenticated');
+  console.log('🔐 Client authenticated');
+  isAuthenticated = true;
+  io.emit('authenticated');
 });
 
 // When authentication fails
-client.on('auth_failure', () => {
-    console.log('Authentication failed');
-    io.emit('auth_failure');
+client.on('auth_failure', (msg) => {
+  console.log('❌ Authentication failed:', msg);
+  isAuthenticated = false;
+  io.emit('auth_failure', msg);
 });
 
-// When the client is loading the screen
+// When disconnected
+client.on('disconnected', (reason) => {
+  console.log('🔌 Client disconnected:', reason);
+  isAuthenticated = false;
+  currentQR = null;
+  io.emit('disconnected', reason);
+  
+  // Auto-restart after disconnect
+  setTimeout(() => {
+    console.log('🔄 Attempting to restart client...');
+    client.initialize();
+  }, 5000);
+});
+
+// Loading screen updates
 client.on('loading_screen', (percent, message) => {
-    console.log('Loading screen:', percent, message);
-    io.emit('loading_screen', percent, message);
+  console.log(`🔄 Loading: ${percent}% - ${message}`);
+  io.emit('loading_screen', percent, message);
 });
 
-// Log all incoming messages
+// Message handling (your existing code)
 client.on('message_create', (message) => {
-    console.log(`📩 New message: ${message.body}`);
+  console.log(`📩 New message: ${message.body}`);
 });
 
-// Respond with "pong" if user sends "!ping"
 client.on('message_create', async (message) => {
-    if (message.body === '!ping') {
-        await client.sendMessage(message.from, 'pong');
-    }
+  if (message.body === '!ping') {
+    await client.sendMessage(message.from, 'pong');
+  }
 });
 
-// Alternatively, reply directly (appears as a reply bubble)
 client.on('message_create', async (message) => {
-    if (message.body === '!pingreply') {
-        await message.reply('pong');
-    }
+  if (message.body === '!pingreply') {
+    await message.reply('pong');
+  }
 });
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
-    console.log('Client connected to website');
-    
-    // If client is already ready, notify the new connection
-    if (client.info) {
-        socket.emit('ready');
+  console.log('🌐 Client connected to website');
+  
+  // Send current status to new connection
+  if (isAuthenticated) {
+    socket.emit('ready');
+  } else if (currentQR) {
+    socket.emit('qr', currentQR);
+  }
+  
+  // Handle refresh QR request
+  socket.on('refresh_qr', () => {
+    console.log('🔄 Refreshing QR code by request');
+    if (isAuthenticated) {
+      client.logout();
     }
-    
-    // Handle refresh QR request
-    socket.on('refresh_qr', () => {
-        console.log('Refreshing QR code by request');
-        client.initialize();
-    });
-    
-    socket.on('disconnect', () => {
-        console.log('Client disconnected from website');
-    });
+    client.initialize();
+  });
+  
+  socket.on('disconnect', () => {
+    console.log('🌐 Client disconnected from website');
+  });
 });
 
-// Start your client
-client.initialize();
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    whatsapp: isAuthenticated ? 'connected' : 'disconnected',
+    timestamp: new Date().toISOString()
+  });
+});
 
-// Start the server
+// Root endpoint
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Start client with error handling
+async function initializeClient() {
+  try {
+    await client.initialize();
+    console.log('🚀 WhatsApp client initialization started');
+  } catch (error) {
+    console.error('❌ Failed to initialize client:', error);
+    // Retry after 10 seconds
+    setTimeout(initializeClient, 10000);
+  }
+}
+
+// Start server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Open http://localhost:${PORT} in your browser`);
+  console.log(`🌐 Server running on port ${PORT}`);
+  console.log(`📱 Open your browser and navigate to the provided Render URL`);
+  initializeClient();
+});
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('🔄 SIGTERM received, shutting down gracefully');
+  await client.destroy();
+  server.close(() => {
+    console.log('💤 Process terminated');
+    process.exit(0);
+  });
 });
